@@ -21,10 +21,7 @@
 			6.SIFT算法提取特征向量
 		拓展：
 			0.编写代理服务器，将客户端上传图片按图片ID hash后存储到对应的检索服务器群中的一台
-		效果图：
-			0.注意：在使用前，将sxml、simg、simgtmp、cimg文件夹中的文件清空。将要上传的图片放到simgupload中。
 
-		分别为【执行前】【库太小更改发回图片数】【执行】【执行结果——日志】【执行结果——文件夹情况】
 ![image](https://github.com/tangsancai/imageserver/blob/master/result/result.jpg)
 ![image](https://github.com/tangsancai/imageserver/blob/master/result/result2.jpg)
 
