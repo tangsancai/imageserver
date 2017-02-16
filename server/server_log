@@ -1,0 +1,19 @@
+TIME: Wed Feb 15 22:39:50 2017
+[LOG][139871460128512]:start load image
+TIME: Wed Feb 15 22:39:50 2017
+[LOG][139871460128512]:the size of image is: 136351
+
+TIME: Wed Feb 15 22:39:50 2017
+[LOG][139871460128512]:start recv image: simgtmp/16.jpg
+TIME: Wed Feb 15 22:39:50 2017
+[LOG][139871460128512]:write done
+
+
+TIME: Wed Feb 15 22:39:51 2017
+[LOG][139871221892864]:start search analogous image
+TIME: Wed Feb 15 22:39:53 2017
+[LOG][139871221892864]:search analogous image over
+TIME: Wed Feb 15 22:39:53 2017
+[LOG][139871221892864]:start send image
+TIME: Wed Feb 15 22:40:03 2017
+[LOG][139871221892864]:send image complete!
