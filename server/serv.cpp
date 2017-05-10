@@ -117,8 +117,8 @@ FEATURE::FEATURE(char *name,int tag)
 	string strname(name);
 	if(tag==1)//from jpg
 	{
-		Mat img=imread(strname,1);
-		int minHessian=700;
+		Mat img=imread(strname,0);
+		int minHessian=300;
 		SurfFeatureDetector detector(minHessian);
 		vector<KeyPoint> keypoint;
 		detector.detect(img,keypoint);
@@ -146,10 +146,12 @@ void FEATURE::feature_storagedescriptors(char* name)
 }
 double FEATURE::feature_computesimilar(Mat &descriptors2)
 {
+	double mindist=100000.0;
+        if(descriptors.empty()||descriptors2.empty())
+                return 2*mindist;
 	FlannBasedMatcher matcher;
 	vector<DMatch> matchepoints;
 	matcher.match(descriptors,descriptors2,matchepoints);
-	double mindist=100000.0;
 	double result=0.0;
 	for(unsigned int i=0;i<matchepoints.size();++i)
 		if(matchepoints[i].distance<mindist)
@@ -350,23 +352,13 @@ DATA::DATA(LOG *logtmp,int sockfd):log(logtmp),sockfd(sockfd)
 	filename[i+11]='g';
 	filename[i+12]='\0';
 }
-struct feasimnode
-{
-	string filename;
-	double similar;
-	feasimnode(string tmp1,double tmp2):filename(tmp1),similar(tmp2){}
-	friend bool operator<(feasimnode tmp1,feasimnode tmp2)
-	{
-		return tmp1.similar<tmp2.similar;
-	}
-};
-void DATA::data_search_send_image(SERVERFEANODE *const fea)
+//void DATA::data_search_send_image(SERVERFEANODE *const fea)
+void DATA::data_searchimage(SERVERFEANODE *const fea)
 {
 	char printstr[40];
 	memset(printstr,'\0',sizeof(printstr));
 	strcpy(printstr,"start search analogous image\n");
 	log->log_debug(printstr,NULL,(long int)pthread_self(),false);
-	priority_queue<feasimnode> vq;
 	FEATURE picfea(filename,1);
 	Mat picdes=picfea.feature_getdescriptors();
 	int i=0;
@@ -394,6 +386,10 @@ void DATA::data_search_send_image(SERVERFEANODE *const fea)
 	memset(printstr,'\0',sizeof(printstr));
 	strcpy(printstr,"search analogous image over\n");
 	log->log_debug(printstr,NULL,(long int)pthread_self(),false);
+}
+void DATA::data_sendimage()
+{
+	char printstr[40];
 	memset(printstr,'\0',sizeof(printstr));
 	strcpy(printstr,"start send image\n");
 	log->log_debug(printstr,NULL,(long int)pthread_self(),false);
@@ -458,7 +454,7 @@ int DATA::data_getsockfd()
 }
 bool DATA:: data_loadimage()
 {
-	char recv[MAXLINE];//不要将接受缓冲区作为成员变量，占空间，且没什么实际意义
+	char recv[MAXLINE];
 	memset(recv,'\0',sizeof(recv));
 	char printstr[40];
 	strcpy(printstr,"start load image\n");
@@ -677,3 +673,7 @@ bool SERVER::server_writeqempty()
 {
 	return writeq.queue_empty();
 }
+SERVER *SIGLENTON::srv=NULL;
+pthread_mutex_t SIGLENTON::lock1;
+SERVERFEANODE *SIGLENTON::fea=NULL;
+pthread_mutex_t SIGLENTON::lock2;

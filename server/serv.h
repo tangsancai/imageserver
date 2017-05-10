@@ -27,7 +27,7 @@
 #include <opencv2/legacy/legacy.hpp>
 
 #define MAXLINE 4096
-#define EPOLLMAX 20
+#define EPOLLMAX 1024
 #define SERV_PORT 9877
 #define LISTENQ 1024
 
@@ -121,17 +121,29 @@ public:
 /*============================================
 DATA：数据处理类，包括下载图片，找出匹配图片，发送匹配图片
 ============================================*/
+struct feasimnode
+{
+	std::string filename;
+	double similar;
+	feasimnode(std::string tmp1,double tmp2):filename(tmp1),similar(tmp2){}
+	friend bool operator<(feasimnode tmp1,feasimnode tmp2)
+	{
+		return tmp1.similar<tmp2.similar;
+	}
+};
 class DATA
 {
 private:
 	LOG *log;//全局的打印文件句柄
 	int sockfd;//需要往sock读写，所以做成成员变量
 	char filename[20];//需要提取地特征向量的文件
+	std::priority_queue<feasimnode> vq;//存放相似图片的名称
 public:
 	DATA();
 	DATA(LOG *logtmp,int sockfd);
 	bool data_loadimage();
-	void data_search_send_image(SERVERFEANODE *const fea);
+	void data_searchimage(SERVERFEANODE *const fea);
+	void data_sendimage();
 	int data_getsockfd();
 	char* data_getfilename();
 };
@@ -195,5 +207,52 @@ struct serv_arg
 	serv_arg(DATA dtmp,SERVER *stmp):d(dtmp),srv(stmp){};
 	serv_arg(){};
 };
-
+/*=============================================
+SIGLENTON：单例，使server/feature在本进程中只有一个实例
+==============================================*/
+class SIGLENTON
+{
+private:
+	static SERVER *srv;
+	SIGLENTON();
+	SIGLENTON(const SIGLENTON &);
+	SIGLENTON& operator=(const SIGLENTON &);
+	static pthread_mutex_t lock1;
+	
+	static SERVERFEANODE *fea;
+	static pthread_mutex_t lock2;
+public:
+	static SERVER* siglenton_getserver()
+	{
+		if(srv==NULL)
+		{
+			MUTEX mu1(&lock1);
+			if(srv==NULL)
+				srv=new SERVER();
+		}
+		return srv;
+	}
+	static SERVERFEANODE* siglenton_getserverfeanode()
+	{
+		if(fea==NULL)
+		{
+			MUTEX mu2(&lock2);
+			if(fea==NULL)
+				fea=new SERVERFEANODE();
+		}
+		return fea;
+	}
+	static void siglenton_deleteserver()
+	{
+		if(srv!=NULL)
+			delete srv;
+		srv=NULL;
+	}
+	static void siglenton_deleteserverfeanode()
+	{
+		if(fea!=NULL)
+			delete fea;
+		fea=NULL;
+	}
+};
 #endif
