@@ -1,5 +1,4 @@
 #include"serv.h"
-#include<iostream>
 /*=============================================
  		网络方面的函数实现
 =============================================*/
@@ -352,7 +351,6 @@ DATA::DATA(LOG *logtmp,int sockfd):log(logtmp),sockfd(sockfd)
 	filename[i+11]='g';
 	filename[i+12]='\0';
 }
-//void DATA::data_search_send_image(SERVERFEANODE *const fea)
 void DATA::data_searchimage(SERVERFEANODE *const fea)
 {
 	char printstr[40];
@@ -436,7 +434,7 @@ void DATA::data_sendimage()
 			unp_writen(sockfd,send,left);			
 		}
 		fclose(ulf);
-		sleep(1);
+		usleep(500);
 		vq.pop();
 	}
 	memset(printstr,'\0',sizeof(printstr));
